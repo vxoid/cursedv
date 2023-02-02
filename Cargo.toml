@@ -1,0 +1,12 @@
+[package]
+name = "cursedv"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/CURVoid/cursedv.git"
+homepage = "https://github.com/CURVoid/cursedv.git"
+description = "Cursedv is tool for network purposes, this tool can scan device for open ports, scan for devices connected to network, make mitm attacks like arp spoofing, make icmp/http DoS/DDoS attacks"
+
+[dependencies]
+cursock = "1.1.0"
+curerr = "1.0.1"
