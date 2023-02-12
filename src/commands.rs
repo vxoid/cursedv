@@ -43,8 +43,12 @@ pub fn is_at(config: &Config) -> Result<(), CursedErrorHandle> {
     sys::is_at(config)
 }
 
-pub fn spoof(config: &Config) -> Result<(), CursedErrorHandle> {
-    sys::spoof(config)
+pub fn arp_spoof(config: &Config) -> Result<(), CursedErrorHandle> {
+    sys::arp_spoof(config)
+}
+
+pub fn icmp_ddos(config: &Config) -> Result<(), CursedErrorHandle> {
+    sys::icmp_ddos(config)
 }
 
 pub fn help(_: &Config) -> Result<(), CursedErrorHandle> {

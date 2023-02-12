@@ -10,9 +10,9 @@ mod sys;
 use curerr::*;
 
 use cursock::utils::*;
-use cursock::Arp;
 use command::Command;
 use consts::COMMANDS;
+use cursock::*;
 
 use config::Config;
 

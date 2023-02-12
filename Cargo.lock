@@ -18,9 +18,9 @@ dependencies = [
 
 [[package]]
 name = "cursock"
-version = "1.1.0"
+version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "236a923a03d7816e1da05bdd272c87470d1414a19637554598c5a4e99602767e"
+checksum = "87758d55fe8f1da4b71c9ac82b6e5427803a74701ee524176b9c1bde9c5ac4ef"
 dependencies = [
  "curerr",
 ]

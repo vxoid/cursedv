@@ -21,15 +21,20 @@ pub const IS_AT: Command = Command {
     name: "isat",
 };
 pub const ARP_SPOOF: Command = Command {
-    method: commands::spoof,
+    method: commands::arp_spoof,
     description: "Does an arp spoofing/poisoning attack|\t--interface, --timeout, --tip, --tmac, --sip, --smac, --amac, --wait",
     name: "arpspoof"
+};
+pub const ICMP_DDOS: Command = Command {
+    method: commands::icmp_ddos,
+    description: "Does an icmp ddos attack|\t--interface, --timeout, --tip, --gip, --gmac",
+    name: "icmpddos"
 };
 pub const HELP: Command = Command {
     method: commands::help,
     description: "Gives information about all commands|",
     name: "help",
 };
-pub const COMMANDS_COUNT: usize = 6;
+pub const COMMANDS_COUNT: usize = 7;
 pub const COMMANDS: [Command; COMMANDS_COUNT] =
-    [OPEN_PORTS, NETWORK_DEVICES, WHO_HAS, IS_AT, ARP_SPOOF, HELP];
+    [OPEN_PORTS, NETWORK_DEVICES, WHO_HAS, IS_AT, ARP_SPOOF, ICMP_DDOS, HELP];

@@ -8,7 +8,9 @@ pub struct Config {
     amac: Option<Mac>,
     tmac: Option<Mac>,
     smac: Option<Mac>,
+    gmac: Option<Mac>,
     wait: Option<u64>,
+    gip: Option<Ipv4>,
     tip: Option<Ipv4>,
     sip: Option<Ipv4>,
     command: Command,
@@ -23,7 +25,9 @@ impl Config {
         let mut amac: Option<Mac> = None;
         let mut tmac: Option<Mac> = None;
         let mut smac: Option<Mac> = None;
+        let mut gmac: Option<Mac> = None;
         let mut wait: Option<u64> = None;
+        let mut gip: Option<Ipv4> = None;
         let mut tip: Option<Ipv4> = None;
         let mut sip: Option<Ipv4> = None;
 
@@ -122,6 +126,38 @@ impl Config {
                             return Err(CursedErrorHandle::new(
                                 CursedError::NotEnought,
                                 String::from("--smac is not specified"),
+                            ))
+                        }
+                    }
+                },
+                "--gip" => {
+                    i += 1;
+
+                    gip = match args.get(i) {
+                        Some(ip) => match parse_ip(&ip[..]) {
+                            Ok(ip) => Some(ip),
+                            Err(err) => return Err(err),
+                        },
+                        None => {
+                            return Err(CursedErrorHandle::new(
+                                CursedError::NotEnought,
+                                String::from("--gip is not specified"),
+                            ))
+                        }
+                    }
+                },
+                "--gmac" => {
+                    i += 1;
+
+                    gmac = match args.get(i) {
+                        Some(mac) => match parse_mac(mac) {
+                            Ok(mac) => Some(mac),
+                            Err(err) => return Err(err),
+                        },
+                        None => {
+                            return Err(CursedErrorHandle::new(
+                                CursedError::NotEnought,
+                                String::from("--gmac is not specified"),
                             ))
                         }
                     }
@@ -255,8 +291,10 @@ impl Config {
             command,
             threads,
             tip,
-            tmac,
             sip,
+            gip,
+            gmac,
+            tmac,
             smac,
             amac,
             timeout,
@@ -266,45 +304,21 @@ impl Config {
         })
     }
 
-    pub fn get_tip(&self) -> Option<Ipv4> {
-        self.tip.clone()
-    }
-
-    pub fn get_sip(&self) -> Option<Ipv4> {
-        self.sip.clone()
-    }
-
-    pub fn get_tmac(&self) -> Option<Mac> {
-        self.tmac.clone()
-    }
-
-    pub fn get_smac(&self) -> Option<Mac> {
-        self.smac.clone()
-    }
-
-    pub fn get_amac(&self) -> Option<Mac> {
-        self.amac.clone()
-    }
-
-    pub fn get_netmask(&self) -> Option<Ipv4> {
-        self.netmask.clone()
-    }
-
-    pub fn get_interface(&self) -> Option<String> {
-        self.interface.clone()
-    }
-
-    pub fn get_timeout(&self) -> Option<u64> {
-        self.timeout.clone()
-    }
-
-    pub fn get_threads(&self) -> Option<u64> {
-        self.threads.clone()
-    }
-
-    pub fn get_wait(&self) -> Option<u64> {
-        self.wait.clone()
-    }
+    getters!(
+        pub get_tip(tip) -> Option<Ipv4>;
+        pub get_sip(sip) -> Option<Ipv4>;
+        pub get_gip(gip) -> Option<Ipv4>;
+        pub get_amac(amac) -> Option<Mac>;
+        pub get_tmac(tmac) -> Option<Mac>;
+        pub get_smac(smac) -> Option<Mac>;
+        pub get_gmac(gmac) -> Option<Mac>;
+        pub get_wait(wait) -> Option<u64>;
+        pub get_command(command) -> Command;
+        pub get_threads(threads) -> Option<u64>;
+        pub get_timeout(timeout) -> Option<u64>;
+        pub get_netmask(netmask) -> Option<Ipv4>;
+        pub get_interface(interface) -> Option<String>;
+    );
 
     pub fn run(&self) -> Result<(), CursedErrorHandle> {
         (self.command.method)(self)
